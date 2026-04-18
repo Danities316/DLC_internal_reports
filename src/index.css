@@ -7,12 +7,57 @@
   --color-accent: #2563eb;
   --color-text-main: #334155;
   --color-text-muted: #64748b;
-  --font-mono: 'Courier New', Courier, monospace;
+  --color-ink: #141414;
+  --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
 }
 
 @layer base {
   body {
-    @apply bg-bg text-text-main antialiased;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    @apply bg-bg text-text-main antialiased selection:bg-accent selection:text-white;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
+}
+
+@layer components {
+  .minimal-card {
+    @apply bg-white border border-border rounded-lg p-6 transition-all duration-200;
+  }
+
+  .minimal-card:hover {
+    @apply border-accent/20 shadow-sm;
+  }
+
+  .label-upper {
+    @apply text-[10px] uppercase font-bold text-text-muted tracking-[0.1em] mb-2 block;
+  }
+
+  .mono-data {
+    @apply font-mono tracking-tighter;
+  }
+
+  .btn-primary {
+    @apply bg-accent hover:bg-accent/90 text-white px-6 py-3 rounded-md text-sm font-semibold transition-all shadow-sm active:scale-[0.98] disabled:opacity-50;
+  }
+
+  .btn-outline {
+    @apply bg-white border border-border text-sidebar px-4 py-2 rounded-md text-sm font-semibold hover:border-accent hover:text-accent transition-all active:scale-[0.98];
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 bg-white border border-border rounded-md text-[13px] outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all font-sans;
+  }
+
+  .input-field-mono {
+    @apply input-field font-mono;
+  }
+}
+
+/* Custom chart styles */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #e2e8f0;
+}
+
+.recharts-default-tooltip {
+  @apply !border-border !rounded-md !shadow-lg !bg-white/90 !backdrop-blur-sm !p-3 !text-[12px];
 }

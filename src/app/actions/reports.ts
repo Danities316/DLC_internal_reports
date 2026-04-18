@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { DailyReport, ReportType } from "@/types";
 import { reportService } from "@/lib/reportService";
-import { aiService } from "@/lib/gemini";
+import { generateManualReport } from "@/lib/reportTemplate";
 
 export async function saveDailyReport(data: any) {
   const session = await getSession();
@@ -85,7 +85,7 @@ export async function getDashboardStats() {
   return last10;
 }
 
-export async function generateAIReport(type: ReportType, params: any) {
+export async function generateReport(type: ReportType, params: any) {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
 
@@ -106,6 +106,6 @@ export async function generateAIReport(type: ReportType, params: any) {
 
   if (!aggregatedData) throw new Error("No data found for period");
 
-  const text = await aiService.generateReportText(aggregatedData, type, session.centreId);
+  const text = generateManualReport(aggregatedData, type, session.centreId);
   return { text };
 }

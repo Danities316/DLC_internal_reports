@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { generateAIReport } from '@/app/actions/reports';
+import { generateReport } from '@/app/actions/reports';
 import { exportService } from '@/lib/exportUtils';
 import { AuthSession, ReportType } from '@/types';
 import Markdown from 'react-markdown';
-import { FileText, Sparkles, Download, FileJson, Loader2, AlertCircle } from 'lucide-react';
+import { FileText, Download, FileJson, Loader2, AlertCircle, Settings2, Eye } from 'lucide-react';
 
 export function ReportGenerator({ session }: { session: AuthSession }) {
   const [reportType, setReportType] = useState<ReportType>('monthly');
@@ -24,12 +24,12 @@ export function ReportGenerator({ session }: { session: AuthSession }) {
     setGeneratedReport(null);
 
     try {
-      const result = await generateAIReport(reportType, { date, month, year, quarter });
+      const result = await generateReport(reportType, { date, month, year, quarter });
       if (result.text) {
         setGeneratedReport(result.text);
       }
     } catch (err: any) {
-      setError(err.message || "Failed to generate report.");
+      setError(err.message || "Failed to compile report. Ensure data exists for the selected period.");
     } finally {
       setLoading(false);
     }
@@ -38,33 +38,32 @@ export function ReportGenerator({ session }: { session: AuthSession }) {
   const currentTitle = `${reportType.toUpperCase()} REPORT - ${session.centreId}`;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Config Panel */}
-      <div className="lg:col-span-1 space-y-6">
-        <div className="bg-white p-6 rounded-lg border border-border">
-          <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6 flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-accent" />
-            Report Assistant
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="lg:col-span-1 space-y-8">
+        <div className="minimal-card">
+          <div className="label-upper mb-10 border-b border-border pb-4 flex items-center gap-2">
+            <Settings2 className="w-3 h-3 text-sidebar" />
+            Report Configuration
           </div>
           
-          <div className="space-y-4">
-            <div>
-              <label className="text-[11px] font-bold text-text-main block mb-3">Target Periodicity</label>
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <label className="label-upper !mb-0 text-[11px]">Temporal Vector</label>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { id: 'daily', label: 'Daily' },
                   { id: 'weekly', label: 'Weekly' },
                   { id: 'monthly', label: 'Monthly' },
-                  { id: 'quarterly', label: 'Quarter' },
+                  { id: 'quarterly', label: 'Quarterly' },
                   { id: 'annual', label: 'Annual' },
                 ].map(type => (
                   <button
                     key={type.id}
                     onClick={() => setReportType(type.id as ReportType)}
-                    className={`px-3 py-2 rounded-[4px] text-[12px] font-semibold transition ${
+                    className={`px-3 py-2.5 rounded-md text-[11px] font-bold tracking-tight transition-all ${
                       reportType === type.id 
-                        ? 'bg-accent text-white shadow-sm' 
-                        : 'bg-white border border-border text-text-muted hover:border-accent hover:text-accent'
+                        ? 'bg-sidebar text-white' 
+                        : 'bg-white border border-border text-text-muted hover:border-sidebar hover:text-sidebar'
                     }`}
                   >
                     {type.label}
@@ -73,40 +72,40 @@ export function ReportGenerator({ session }: { session: AuthSession }) {
               </div>
             </div>
 
-            <div className="pt-6 border-t border-border mt-4">
+            <div className="pt-8 border-t border-border space-y-6">
                {['daily', 'weekly'].includes(reportType) && (
-                 <div className="flex flex-col gap-1.5">
-                   <label className="text-[11px] font-bold text-text-main">Reference Date</label>
+                 <div className="space-y-2">
+                   <label className="label-upper !mb-0">Reference Point</label>
                    <input 
                      type="date" 
                      value={date} 
                      onChange={e => setDate(e.target.value)}
-                     className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                     className="input-field-mono"
                    />
                  </div>
                )}
 
                {['monthly'].includes(reportType) && (
                  <div className="grid grid-cols-2 gap-4">
-                   <div className="flex flex-col gap-1.5">
-                     <label className="text-[11px] font-bold text-text-main">Month</label>
+                   <div className="space-y-2">
+                     <label className="label-upper !mb-0">Month</label>
                      <select 
                        value={month} 
                        onChange={e => setMonth(parseInt(e.target.value))}
-                       className="px-3 py-2 bg-white border border-border rounded-[4px] text-[13px] outline-none focus:border-accent transition"
+                       className="input-field py-2.5"
                      >
                        {Array.from({ length: 12 }, (_, i) => (
                          <option key={i+1} value={i+1}>{new Date(2000, i).toLocaleString('default', { month: 'long' })}</option>
                        ))}
                      </select>
                    </div>
-                   <div className="flex flex-col gap-1.5">
-                     <label className="text-[11px] font-bold text-text-main">Year</label>
+                   <div className="space-y-2">
+                     <label className="label-upper !mb-0">Year</label>
                      <input 
                        type="number" 
                        value={year} 
                        onChange={e => setYear(parseInt(e.target.value))}
-                       className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                       className="input-field-mono"
                      />
                    </div>
                  </div>
@@ -114,39 +113,39 @@ export function ReportGenerator({ session }: { session: AuthSession }) {
 
                {['quarterly'].includes(reportType) && (
                  <div className="grid grid-cols-2 gap-4">
-                   <div className="flex flex-col gap-1.5">
-                     <label className="text-[11px] font-bold text-text-main">Quarter</label>
+                   <div className="space-y-2">
+                     <label className="label-upper !mb-0">Quarter</label>
                      <select 
                        value={quarter} 
                        onChange={e => setQuarter(parseInt(e.target.value))}
-                       className="px-3 py-2 bg-white border border-border rounded-[4px] text-[13px] outline-none focus:border-accent transition"
+                       className="input-field py-2.5"
                      >
-                        <option value={1}>Q1 (Jan-Mar)</option>
-                        <option value={2}>Q2 (Apr-Jun)</option>
-                        <option value={3}>Q3 (Jul-Sep)</option>
-                        <option value={4}>Q4 (Oct-Dec)</option>
+                        <option value={1}>Q1 / JAN-MAR</option>
+                        <option value={2}>Q2 / APR-JUN</option>
+                        <option value={3}>Q3 / JUL-SEP</option>
+                        <option value={4}>Q4 / OCT-DEC</option>
                      </select>
                    </div>
-                   <div className="flex flex-col gap-1.5">
-                     <label className="text-[11px] font-bold text-text-main">Year</label>
+                   <div className="space-y-2">
+                     <label className="label-upper !mb-0">Year</label>
                      <input 
                        type="number" 
                        value={year} 
                        onChange={e => setYear(parseInt(e.target.value))}
-                       className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                       className="input-field-mono"
                      />
                    </div>
                  </div>
                )}
 
                {['annual'].includes(reportType) && (
-                 <div className="flex flex-col gap-1.5">
-                   <label className="text-[11px] font-bold text-text-main">Year</label>
+                 <div className="space-y-2">
+                   <label className="label-upper !mb-0">Fiscal Year</label>
                    <input 
                      type="number" 
                      value={year} 
                      onChange={e => setYear(parseInt(e.target.value))}
-                     className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                     className="input-field-mono"
                    />
                  </div>
                )}
@@ -155,48 +154,49 @@ export function ReportGenerator({ session }: { session: AuthSession }) {
             <button
                onClick={handleGenerate}
                disabled={loading}
-               className="w-full mt-8 bg-accent hover:opacity-90 text-white py-3.5 rounded-[4px] text-[13px] font-bold shadow-sm transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+               className="w-full btn-primary h-14"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              Generate Official Report
+              {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : "Compile Official Report"}
             </button>
           </div>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-[4px] text-[11px] font-medium flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
+          <div className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-lg text-[11px] font-bold flex items-center gap-3">
+            <AlertCircle className="w-4 h-4 shrink-0" />
             {error}
           </div>
         )}
 
-        {loading && (
-          <div className="bg-[#eff6ff] border border-dashed border-accent p-4 rounded-md text-[11px] text-accent leading-relaxed">
-            <strong>Gemini AI Intelligence:</strong> Drafting document structure and finalizing operational breakdown based on FRSC tone standards...
+        <div className="bg-sidebar p-6 rounded-lg text-[11px] text-white/40 leading-relaxed font-mono">
+          <p className="mb-2 text-white/60">SYSTEM LOG:</p>
+          <div className="space-y-1">
+            <p>&gt; Engine initialized</p>
+            <p>&gt; Aggregation protocol: {reportType.toUpperCase()}</p>
+            {loading && <p className="animate-pulse text-accent">&gt; Compiling data vectors...</p>}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Preview Area */}
-      <div className="lg:col-span-2 space-y-4">
-        <div className="bg-white rounded-lg border border-border min-h-[700px] flex flex-col shadow-sm">
-          <div className="p-4 border-b border-border flex items-center justify-between">
-            <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest flex items-center gap-2">
-              <FileText className="w-3.5 h-3.5 text-text-muted" />
-              Document Preview
+      <div className="lg:col-span-2 space-y-6">
+        <div className="bg-white rounded-lg border border-border min-h-[750px] flex flex-col transition-all overflow-hidden">
+          <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-white sticky top-0 z-10">
+            <div className="label-upper !mb-0 flex items-center gap-2">
+              <Eye className="w-3 h-3 text-text-muted" />
+              Document Manifest
             </div>
             {generatedReport && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button 
                   onClick={() => exportService.toDocx(currentTitle, generatedReport)}
-                  className="px-3 py-1.5 bg-white border border-border text-sidebar text-[10px] font-bold rounded-md hover:border-accent hover:text-accent transition flex items-center gap-2"
+                  className="btn-outline !py-1.5 flex items-center gap-2"
                 >
                   <FileJson className="w-3.5 h-3.5" />
                   DOCX
                 </button>
                 <button 
                   onClick={() => exportService.toPdf(currentTitle, generatedReport)}
-                   className="px-3 py-1.5 bg-white border border-border text-sidebar text-[10px] font-bold rounded-md hover:border-accent hover:text-accent transition flex items-center gap-2"
+                   className="btn-outline !py-1.5 flex items-center gap-2"
                 >
                   <Download className="w-3.5 h-3.5" />
                   PDF
@@ -205,23 +205,32 @@ export function ReportGenerator({ session }: { session: AuthSession }) {
             )}
           </div>
           
-          <div className="flex-1 p-10 overflow-y-auto bg-white">
+          <div className="flex-1 p-12 overflow-y-auto">
              {!generatedReport && !loading && (
-               <div className="h-full flex flex-col items-center justify-center text-text-muted/40">
-                  <FileText className="w-12 h-12 mb-4" />
-                  <p className="text-[11px] font-semibold uppercase tracking-widest">Awaiting Parameterization</p>
+               <div className="h-full flex flex-col items-center justify-center text-text-muted/20">
+                  <FileText className="w-16 h-16 mb-6 stroke-[1]" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-center">Standby for Parameter Selection</p>
                </div>
              )}
 
              {loading && (
-               <div className="h-full flex flex-col items-center justify-center gap-6">
-                  <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-[11px] font-bold text-accent uppercase tracking-widest animate-pulse">Drafting Master Report...</p>
+               <div className="h-full flex flex-col items-center justify-center gap-8">
+                  <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-[10px] font-black text-accent uppercase tracking-[0.2em] animate-pulse">Compiling Master Data...</p>
                </div>
              )}
 
              {generatedReport && (
-               <div className="prose prose-sm max-w-none prose-table:border prose-table:border-neutral-200 prose-th:bg-neutral-50 prose-th:px-4 prose-th:py-2 prose-td:px-4 prose-td:py-2">
+               <div className="prose prose-sm max-w-none 
+                 prose-h1:text-[20px] prose-h1:font-black prose-h1:tracking-tighter prose-h1:uppercase
+                 prose-h2:text-[16px] prose-h2:font-bold prose-h2:border-b prose-h2:border-border prose-h2:pb-2
+                 prose-h3:text-[13px] prose-h3:font-black prose-h3:uppercase prose-h3:tracking-widest prose-h3:text-text-muted
+                 prose-p:text-[14px] prose-p:leading-relaxed prose-p:text-text-main
+                 prose-table:border prose-table:border-border prose-table:rounded-sm prose-table:overflow-hidden 
+                 prose-th:bg-bg prose-th:px-4 prose-th:py-3 prose-th:text-[11px] prose-th:font-black prose-th:uppercase prose-th:tracking-wider prose-th:border-r prose-th:border-border
+                 prose-td:px-4 prose-td:py-3 prose-td:text-[13px] prose-td:font-mono prose-td:border-r prose-td:border-border
+                 prose-hr:border-border
+               ">
                  <Markdown>{generatedReport}</Markdown>
                </div>
              )}

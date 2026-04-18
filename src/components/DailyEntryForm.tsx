@@ -72,69 +72,69 @@ export function DailyEntryForm({ session }: { session: AuthSession }) {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-6">
-        <div className="bg-white p-8 rounded-lg border border-border">
-          <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6">Operational Data Entry: {formData.date}</div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 animate-in fade-in slide-in-from-bottom-2 duration-500">
+      <div className="lg:col-span-2 space-y-10">
+        <div className="minimal-card">
+          <h3 className="label-upper mb-10">Operational Record: {formData.date}</h3>
           
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-text-main">Date</label>
+          <form onSubmit={handleSubmit} className="space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="space-y-2">
+                <label className="label-upper !mb-0 font-semibold opacity-60">Reporting Date</label>
                 <input 
                   type="date" 
                   value={formData.date} 
                   onChange={e => setFormData({...formData, date: e.target.value})}
-                  className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                  className="input-field-mono"
                 />
               </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-[11px] font-bold text-text-main">Total Production</label>
+              <div className="space-y-2">
+                <label className="label-upper !mb-0 font-semibold opacity-60">Total Production</label>
                 <input 
                   type="number" 
                   value={formData.totalProduction} 
                   onChange={e => setFormData({...formData, totalProduction: parseInt(e.target.value) || 0})}
-                  className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                  className="input-field-mono font-bold text-accent bg-accent/[0.02]"
                 />
               </div>
-              <div className="flex flex-col gap-1.5 opacity-40 italic">
-                 <label className="text-[11px] font-bold text-text-main">Status</label>
-                 <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-green-600">Pending Post</div>
+              <div className="space-y-2 opacity-60">
+                 <label className="label-upper !mb-0 font-semibold opacity-60">Authentication Status</label>
+                 <div className="h-10 flex items-center px-3 text-[9px] font-bold uppercase tracking-widest text-green-600 border border-border rounded-md bg-bg/50">Secure / Verified</div>
               </div>
             </div>
 
-            <div className="pt-8 border-t border-border">
-              <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6">Aggregate Drivers Breakdown</div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="pt-10 border-t border-border">
+              <h4 className="label-upper mb-10">Categorization Vector</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {[
-                  { id: 'fresh', label: 'Fresh' },
-                  { id: 'renewal', label: 'Renewal' },
-                  { id: 'reissue', label: 'Re-Issue' },
+                  { id: 'fresh', label: 'Fresh Issuance' },
+                  { id: 'renewal', label: 'License Renewal' },
+                  { id: 'reissue', label: 'Re-Issuance' },
                 ].map(item => (
-                  <div key={item.id} className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-bold text-text-main">{item.label}</label>
+                  <div key={item.id} className="space-y-2">
+                    <label className="text-[11px] font-semibold text-text-muted">{item.label}</label>
                     <input 
                       type="number" 
                       value={(formData as any)[item.id]} 
                       onChange={e => setFormData({...formData, [item.id]: parseInt(e.target.value) || 0})}
-                      className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                      className="input-field-mono"
                     />
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="pt-8 border-t border-border">
-              <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6">Identity (Sex) Analysis</div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="pt-10 border-t border-border">
+              <h4 className="label-upper mb-10">Identity Audit (Gender)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {['male', 'female'].map(s => (
-                  <div key={s} className="flex flex-col gap-1.5">
-                    <label className="text-[11px] font-bold text-text-main capitalize">{s}</label>
+                  <div key={s} className="space-y-2">
+                    <label className="text-[11px] font-semibold text-text-muted capitalize">{s} Applicants</label>
                     <input 
                       type="number" 
                       value={(formData as any)[s]} 
                       onChange={e => setFormData({...formData, [s]: parseInt(e.target.value) || 0})}
-                      className="px-3 py-2 bg-white border border-border rounded-[4px] font-mono text-[13px] outline-none focus:border-accent transition"
+                      className="input-field-mono"
                     />
                   </div>
                 ))}
@@ -143,38 +143,38 @@ export function DailyEntryForm({ session }: { session: AuthSession }) {
           </form>
         </div>
 
-        <div className="bg-white p-8 rounded-lg border border-border">
-          <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-4">Remarks & Observations</div>
+        <div className="minimal-card">
+          <label className="label-upper mb-6">Operational Remarks & Incident Logs</label>
           <textarea 
             value={formData.remarks}
             onChange={e => setFormData({...formData, remarks: e.target.value})}
-            className="w-full p-3 border border-border rounded-[4px] text-[12px] h-32 resize-none outline-none focus:border-accent transition"
-            placeholder="Official log entries..."
+            className="input-field h-36 resize-none py-3"
+            placeholder="Document any deviations from standard operational protocol..."
           />
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="bg-white p-8 rounded-lg border border-border shadow-sm">
-          <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6">Licence Classes (A-J)</div>
+      <div className="space-y-10">
+        <div className="minimal-card">
+          <h3 className="label-upper mb-10">Class Distribution</h3>
           <div className="grid grid-cols-3 gap-4">
             {Object.keys(formData.classes).map(cls => (
-              <div key={cls} className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold text-text-main">Cls {cls}</label>
+              <div key={cls} className="space-y-2">
+                <label className="text-[9px] font-black text-text-muted text-center block">CLS {cls}</label>
                 <input 
                   type="number" 
                   value={(formData.classes as any)[cls]} 
                   onChange={e => updateClass(cls, e.target.value)}
-                  className="px-2 py-1.5 bg-white border border-border rounded-[4px] font-mono text-[12px] text-center outline-none focus:border-accent transition"
+                  className="input-field-mono text-center h-10 px-0"
                 />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-lg border border-border shadow-sm">
-          <div className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6">Age Cohorts</div>
-          <div className="space-y-4">
+        <div className="minimal-card">
+          <h3 className="label-upper mb-10">Demographic Analysis</h3>
+          <div className="space-y-6">
             {Object.keys(formData.ageGroups).map(age => (
               <div key={age} className="flex items-center justify-between">
                 <label className="text-[11px] font-bold text-text-main">Years {age}</label>
@@ -182,35 +182,37 @@ export function DailyEntryForm({ session }: { session: AuthSession }) {
                   type="number" 
                   value={(formData.ageGroups as any)[age]} 
                   onChange={e => updateAge(age, e.target.value)}
-                  className="w-20 px-2 py-1.5 bg-white border border-border rounded-[4px] font-mono text-[12px] text-right outline-none focus:border-accent transition"
+                  className="w-24 input-field-mono text-right h-10"
                 />
               </div>
             ))}
           </div>
         </div>
 
-        <div className="space-y-4 pt-4">
+        <div className="space-y-4 pt-4 sticky top-24">
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-accent hover:opacity-90 text-white px-6 py-3.5 rounded-[4px] text-[13px] font-bold shadow-sm transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full btn-primary flex items-center justify-center gap-3 h-14"
           >
-            {loading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Save className="w-4 h-4" />}
-            Validate & Post Daily Data
+            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Save className="w-4 h-4" />}
+            Validate & Push to Mainframe
           </button>
           
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-100 text-red-600 rounded-[4px] text-[11px] font-medium flex items-center gap-2">
-              <AlertCircle className="w-4 h-4" />
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="p-3 bg-green-50 border border-green-100 text-green-700 rounded-[4px] text-[11px] font-medium flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
-              Data synchronized successfully.
-            </div>
-          )}
+          <AnimatePresence>
+            {error && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="p-4 bg-red-50 border border-red-100 text-red-600 rounded-md text-[11px] font-bold flex items-center gap-3">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {error}
+              </motion.div>
+            )}
+            {success && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="p-4 bg-green-50 border border-green-100 text-green-700 rounded-md text-[11px] font-bold flex items-center gap-3">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                Data integrity verified. System updated.
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
