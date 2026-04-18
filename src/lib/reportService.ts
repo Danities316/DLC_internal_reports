@@ -1,24 +1,70 @@
-import { collection, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { prisma } from "./prisma";
 import { DailyReport, ReportType } from "../types";
 
 export const reportService = {
-  /**
-   * Fetches daily reports within a date range and aggregates them.
-   */
   async getAggregatedData(startDate: string, endDate: string, centreId: string) {
-    const q = query(
-      collection(db, "dailyReports"),
-      where("centreId", "==", centreId),
-      where("date", ">=", startDate),
-      where("date", "<=", endDate),
-      orderBy("date", "asc")
-    );
+    const rawReports = await prisma.dailyReport.findMany({
+      where: {
+        centreId,
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      orderBy: {
+        date: "asc",
+      },
+    });
 
-    const snapshot = await getDocs(q);
-    const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailyReport));
+    if (rawReports.length === 0) {
+      return {
+        totalProduction: 0,
+        fresh: 0,
+        renewal: 0,
+        reissue: 0,
+        male: 0,
+        female: 0,
+        classes: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0, J: 0 },
+        ageGroups: { "18-25": 0, "26-60": 0, "60+": 0 },
+        reportCount: 0,
+        startDate,
+        endDate,
+        reports: []
+      };
+    }
 
-    if (reports.length === 0) return null;
+    // Map Prisma models to DailyReport interface for consistent usage
+    const reports: DailyReport[] = rawReports.map(r => ({
+      id: r.id,
+      date: r.date,
+      centreId: r.centreId,
+      totalProduction: r.totalProduction,
+      fresh: r.fresh,
+      renewal: r.renewal,
+      reissue: r.reissue,
+      male: r.male,
+      female: r.female,
+      classes: {
+        A: r.clsA,
+        B: r.clsB,
+        C: r.clsC,
+        D: r.clsD,
+        E: r.clsE,
+        F: r.clsF,
+        G: r.clsG,
+        H: r.clsH,
+        J: r.clsJ,
+      },
+      ageGroups: {
+        "18-25": r.age18_25,
+        "26-60": r.age26_60,
+        "60+": r.age60plus,
+      },
+      remarks: r.remarks || undefined,
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
+      createdBy: r.userId
+    }));
 
     const aggregated = {
       totalProduction: 0,
@@ -32,7 +78,7 @@ export const reportService = {
       reportCount: reports.length,
       startDate,
       endDate,
-      reports // Raw reports for detailed analysis if needed
+      reports
     };
 
     reports.forEach(r => {
@@ -55,9 +101,6 @@ export const reportService = {
     return aggregated;
   },
 
-  /**
-   * Wrapper for Weekly
-   */
   async getWeeklyReport(date: string, centreId: string) {
     const d = new Date(date);
     const day = d.getDay() || 7;
@@ -76,18 +119,12 @@ export const reportService = {
     );
   },
 
-  /**
-   * Wrapper for Monthly
-   */
   async getMonthlyReport(year: number, month: number, centreId: string) {
     const start = new Date(year, month - 1, 1).toISOString().split('T')[0];
     const end = new Date(year, month, 0).toISOString().split('T')[0];
     return this.getAggregatedData(start, end, centreId);
   },
 
-  /**
-   * Wrapper for Quarterly
-   */
   async getQuarterlyReport(year: number, quarter: number, centreId: string) {
     const startMonth = (quarter - 1) * 3;
     const start = new Date(year, startMonth, 1).toISOString().split('T')[0];
@@ -95,9 +132,6 @@ export const reportService = {
     return this.getAggregatedData(start, end, centreId);
   },
 
-  /**
-   * Wrapper for Annual
-   */
   async getAnnualReport(year: number, centreId: string) {
     const start = `${year}-01-01`;
     const end = `${year}-12-31`;

@@ -1,11 +1,11 @@
+"use client";
+
 import React, { useState } from 'react';
-import { db } from '../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { useAuth } from '../hooks/useAuth';
+import { saveDailyReport } from '@/app/actions/reports';
+import { AuthSession } from '@/types';
 import { Save, AlertCircle, CheckCircle2 } from 'lucide-react';
 
-export function DailyEntryForm() {
-  const { profile } = useAuth();
+export function DailyEntryForm({ session }: { session: AuthSession }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,19 +52,12 @@ export function DailyEntryForm() {
     setLoading(true);
     setError(null);
     try {
-      await addDoc(collection(db, "dailyReports"), {
-        ...formData,
-        centreId: profile?.centreId,
-        createdBy: profile?.uid,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+      const result = await saveDailyReport(formData);
+      if (result.error) throw new Error(result.error);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-      // Reset some fields but keep date or increment?
-    } catch (err) {
-      setError("Failed to save report. Please try again.");
-      console.error(err);
+    } catch (err: any) {
+      setError(err.message || "Failed to save report. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -1,55 +1,32 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db } from '../lib/firebase';
-import { DailyReport } from '../types';
-import { useAuth } from '../hooks/useAuth';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Users, FileText, CheckCircle2, TrendingUp, Calendar } from 'lucide-react';
+import { getDashboardStats } from "@/app/actions/reports";
+import { AuthSession } from "@/types";
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell
+} from 'recharts';
+import { TrendingUp, FileText, CheckCircle2, Users } from 'lucide-react';
 
-const COLORS = ['#006633', '#FF9900', '#004d26', '#FFCC00'];
-
-export function Dashboard() {
-  const { profile } = useAuth();
-  const [recentReports, setRecentReports] = useState<DailyReport[]>([]);
-  const [stats, setStats] = useState({
-    totalProduction: 0,
-    fresh: 0,
-    renewal: 0,
-    reissue: 0,
-    male: 0,
-    female: 0
-  });
+export function Dashboard({ session }: { session: AuthSession }) {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!profile) return;
+    getDashboardStats().then(data => {
+      setStats(data);
+      setLoading(false);
+    });
+  }, []);
 
-    const fetchDashboardData = async () => {
-      const q = query(
-        collection(db, "dailyReports"),
-        where("centreId", "==", profile.centreId),
-        orderBy("date", "desc"),
-        limit(10)
-      );
-
-      const snapshot = await getDocs(q);
-      const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailyReport));
-      setRecentReports(reports);
-
-      // Simple stats aggregation
-      const totals = reports.reduce((acc, r) => ({
-        totalProduction: acc.totalProduction + r.totalProduction,
-        fresh: acc.fresh + r.fresh,
-        renewal: acc.renewal + r.renewal,
-        reissue: acc.reissue + r.reissue,
-        male: acc.male + r.male,
-        female: acc.female + r.female
-      }), { totalProduction: 0, fresh: 0, renewal: 0, reissue: 0, male: 0, female: 0 });
-      
-      setStats(totals);
-    };
-
-    fetchDashboardData();
-  }, [profile]);
+  if (loading || !stats) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   const pieData = [
     { name: 'Fresh', value: stats.fresh },
@@ -57,7 +34,7 @@ export function Dashboard() {
     { name: 'Reissue', value: stats.reissue },
   ];
 
-  const barData = recentReports.slice().reverse().map(r => ({
+  const barData = stats.reports.map((r: any) => ({
     date: r.date.split('-').slice(1).join('/'),
     total: r.totalProduction
   }));
@@ -66,7 +43,6 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: 'Total Production', value: stats.totalProduction, icon: TrendingUp },
@@ -91,9 +67,8 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Charts */}
         <div className="lg:col-span-2 bg-white p-6 rounded-lg border border-border">
-          <h3 className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6">Production Volume (Last 10 Days)</h3>
+          <h3 className="text-[10px] uppercase font-bold text-text-muted tracking-widest mb-6">Production Volume (Window Data)</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData}>
@@ -139,7 +114,7 @@ export function Dashboard() {
                     paddingAngle={2}
                     dataKey="value"
                   >
-                    {pieData.map((entry, index) => (
+                    {pieData.map((entry: any, index: number) => (
                       <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                     ))}
                   </Pie>

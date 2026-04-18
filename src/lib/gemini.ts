@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { ReportType } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
+const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY as string });
 
 export const aiService = {
   async generateReportText(data: any, type: ReportType, centreName: string = "EKET") {

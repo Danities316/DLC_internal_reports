@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  phone        String   @unique
+  pin          String   @unique // C-xxxx format
+  role         String   @default("officer") // admin or officer
+  centreId     String   @default("RS6.31-EKET")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  dailyReports DailyReport[]
+}
+
+model DailyReport {
+  id              String   @id @default(uuid())
+  date            String   // yyyy-mm-dd
+  totalProduction Int
+  fresh           Int
+  renewal         Int
+  reissue         Int
+  male            Int
+  female          Int
+  remarks         String?
+  centreId        String
+  
+  // Classes
+  clsA            Int      @default(0)
+  clsB            Int      @default(0)
+  clsC            Int      @default(0)
+  clsD            Int      @default(0)
+  clsE            Int      @default(0)
+  clsF            Int      @default(0)
+  clsG            Int      @default(0)
+  clsH            Int      @default(0)
+  clsJ            Int      @default(0)
+
+  // Age groups
+  age18_25        Int      @default(0)
+  age26_60        Int      @default(0)
+  age60plus       Int      @default(0)
+
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  @@unique([date, centreId])
+  @@index([userId])
+  @@index([date])
+}

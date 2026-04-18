@@ -31,11 +31,19 @@ export interface DailyReport {
 }
 
 export interface UserProfile {
-  uid: string;
-  email: string;
-  displayName?: string;
-  centreId: string;
+  id: string;
+  name: string;
+  phone: string;
+  pin: string;
   role: 'officer' | 'admin';
+  centreId: string;
+}
+
+export interface AuthSession {
+  userId: string;
+  name: string;
+  role: string;
+  centreId: string;
 }
 
 export type ReportType = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual';

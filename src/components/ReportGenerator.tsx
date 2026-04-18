@@ -1,14 +1,13 @@
+"use client";
+
 import React, { useState } from 'react';
-import { reportService } from '../services/reportService';
-import { aiService } from '../services/aiService';
-import { exportService } from '../lib/exportUtils';
-import { useAuth } from '../hooks/useAuth';
-import { ReportType } from '../types';
+import { generateAIReport } from '@/app/actions/reports';
+import { exportService } from '@/lib/exportUtils';
+import { AuthSession, ReportType } from '@/types';
 import Markdown from 'react-markdown';
 import { FileText, Sparkles, Download, FileJson, Loader2, AlertCircle } from 'lucide-react';
 
-export function ReportGenerator() {
-  const { profile } = useAuth();
+export function ReportGenerator({ session }: { session: AuthSession }) {
   const [reportType, setReportType] = useState<ReportType>('monthly');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [year, setYear] = useState(new Date().getFullYear());
@@ -20,42 +19,23 @@ export function ReportGenerator() {
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
-    if (!profile) return;
     setLoading(true);
     setError(null);
     setGeneratedReport(null);
 
     try {
-      let aggregatedData;
-      const centreId = profile.centreId;
-
-      if (reportType === 'daily') {
-        aggregatedData = await reportService.getAggregatedData(date, date, centreId);
-      } else if (reportType === 'weekly') {
-        aggregatedData = await reportService.getWeeklyReport(date, centreId);
-      } else if (reportType === 'monthly') {
-        aggregatedData = await reportService.getMonthlyReport(year, month, centreId);
-      } else if (reportType === 'quarterly') {
-        aggregatedData = await reportService.getQuarterlyReport(year, quarter, centreId);
-      } else {
-        aggregatedData = await reportService.getAnnualReport(year, centreId);
+      const result = await generateAIReport(reportType, { date, month, year, quarter });
+      if (result.text) {
+        setGeneratedReport(result.text);
       }
-
-      if (!aggregatedData) {
-        throw new Error("No operational data found for the selected period.");
-      }
-
-      const aiText = await aiService.generateReportText(aggregatedData, reportType, profile.centreId);
-      setGeneratedReport(aiText || "Could not generate report content.");
     } catch (err: any) {
       setError(err.message || "Failed to generate report.");
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const currentTitle = `${reportType.toUpperCase()} REPORT - ${profile?.centreId}`;
+  const currentTitle = `${reportType.toUpperCase()} REPORT - ${session.centreId}`;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
