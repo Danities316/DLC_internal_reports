@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f8fafc;
+  --color-sidebar: #0f172a;
+  --color-border: #e2e8f0;
+  --color-accent: #2563eb;
+  --color-text-main: #334155;
+  --color-text-muted: #64748b;
+  --font-mono: 'Courier New', Courier, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text-main antialiased;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+}
