@@ -25,6 +25,10 @@ export interface DailyReport {
     "60+": number;
   };
   remarks?: string;
+  balBF?: number;
+  received?: number;
+  claimed?: number;
+  balCF?: number;
   createdAt: string; // ISO String
   updatedAt: string; // ISO String
   createdBy: string; // userId

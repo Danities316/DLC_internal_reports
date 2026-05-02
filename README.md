@@ -1,6 +1,6 @@
 # Data Logs Center (DLC) Reporting System
 
-An internal operational portal built for the **Federal Road Safety Corps (FRSC) Data Logs Center**. This application replaces manual, paper-based reporting with a streamlined, mobile-first digital ledger. It enables non-technical officers to easily submit daily production metrics, track license card inventory, and instantly generate formatted reports for WhatsApp communications or official archival.
+An internal operational portal built for the **Data Logs Center**. This application replaces manual, paper-based reporting with a streamlined, mobile-first digital ledger. It enables non-technical officers to easily submit daily production metrics, track license card inventory, and instantly generate formatted reports for WhatsApp communications or official archival.
 
 ## 🚀 Key Features
 
