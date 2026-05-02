@@ -80,7 +80,7 @@ export function Dashboard({ session, onNavigate }: Props) {
       </div>
 
       {/* Main Action Buttons */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <button 
           onClick={() => onNavigate('entry')}
           className="group relative bg-primary text-white p-8 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
@@ -93,6 +93,21 @@ export function Dashboard({ session, onNavigate }: Props) {
           <p className="text-white/70 text-sm mb-6">Log today's production numbers and demographics.</p>
           <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded">
             Start Entry <ChevronRight className="w-3 h-3" />
+          </div>
+        </button>
+
+        <button 
+          onClick={() => onNavigate('reports')}
+          className="group relative bg-white text-primary p-8 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform text-primary">
+            <FileText className="w-24 h-24" />
+          </div>
+          <FileText className="w-8 h-8 mb-4 text-primary" />
+          <h3 className="text-xl font-bold mb-2 text-primary">Daily Report</h3>
+          <p className="text-text-muted text-sm mb-6">Generate WhatsApp summary for today.</p>
+          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-primary">
+            Generate Now <ChevronRight className="w-3 h-3" />
           </div>
         </button>
 
