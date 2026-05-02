@@ -1,20 +1,27 @@
-"use client";
-
 import React, { useEffect, useState } from 'react';
-import { getDashboardStats } from "@/app/actions/reports";
+import { getSimplifiedStats } from "@/app/actions/reports";
 import { AuthSession } from "@/types";
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
-} from 'recharts';
-import { TrendingUp, FileText, CheckCircle2, Users } from 'lucide-react';
+  Calendar, 
+  FileText, 
+  PlusCircle, 
+  BarChart, 
+  ChevronRight,
+  ClipboardCheck,
+  TrendingUp
+} from 'lucide-react';
 
-export function Dashboard({ session }: { session: AuthSession }) {
-  const [stats, setStats] = useState<any>(null);
+interface Props {
+  session: AuthSession;
+  onNavigate: (tab: string) => void;
+}
+
+export function Dashboard({ session, onNavigate }: Props) {
+  const [stats, setStats] = useState<{today: number, week: number, month: number} | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getDashboardStats().then(data => {
+    getSimplifiedStats().then(data => {
       setStats(data);
       setLoading(false);
     });
@@ -23,113 +30,110 @@ export function Dashboard({ session }: { session: AuthSession }) {
   if (loading || !stats) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="w-6 h-6 border-[1.5px] border-accent border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-[2px] border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  const pieData = [
-    { name: 'Fresh', value: stats.fresh },
-    { name: 'Renewal', value: stats.renewal },
-    { name: 'Reissue', value: stats.reissue },
-  ];
-
-  const barData = stats.reports.map((r: any) => ({
-    date: r.date.split('-').slice(1).join('/'),
-    total: r.totalProduction
-  }));
-
-  const chartColors = ['#2563eb', '#64748b', '#0f172a', '#e2e8f0'];
-
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Welcome Message */}
+      <div className="bg-white p-8 lg:p-10 rounded-xl border border-border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
+        <div className="relative z-10">
+          <h1 className="text-2xl lg:text-3xl font-black text-primary tracking-tight mb-2">
+            Welcome, {session.name}
+          </h1>
+          <p className="text-text-muted text-sm lg:text-base max-w-md">
+            Ready to record today's production? Select an action below to get started.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 bg-bg px-4 py-2 rounded-lg border border-border self-start md:self-auto relative z-10">
+          <Calendar className="w-4 h-4 text-accent" />
+          <span className="text-[12px] font-bold uppercase tracking-widest text-primary">
+            {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </span>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: 'Cumulative Output', value: stats.totalProduction, icon: TrendingUp },
-          { label: 'Fresh Applications', value: stats.fresh, icon: FileText },
-          { label: 'Renewal Volume', value: stats.renewal, icon: CheckCircle2 },
-          { label: 'System Integrity', value: 'OPTIMAL', icon: Users, isBadge: true },
-        ].map((stat, i) => (
-          <div key={i} className="minimal-card">
-            <div className="label-upper flex items-center justify-between mb-4">
-              {stat.label}
-              <stat.icon className="w-3 h-3 opacity-40" />
+          { label: "Today's Total", value: stats.today, icon: ClipboardCheck, color: 'text-primary' },
+          { label: "This Week Total", value: stats.week, icon: TrendingUp, color: 'text-accent' },
+          { label: "This Month Total", value: stats.month, icon: BarChart, color: 'text-primary' },
+        ].map((item, i) => (
+          <div key={i} className="bg-white p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 transition-all group">
+            <div className="flex items-center gap-4 mb-4">
+              <div className={`p-2 rounded-lg bg-bg ${item.color}`}>
+                <item.icon className="w-5 h-5" />
+              </div>
+              <span className="text-[11px] font-black uppercase tracking-[0.15em] text-text-muted">
+                {item.label}
+              </span>
             </div>
-            <div className="flex items-baseline justify-between">
-              {typeof stat.value === 'string' && stat.isBadge ? (
-                <span className="px-2 py-0.5 rounded-sm bg-accent/5 text-accent text-[9px] font-bold tracking-widest border border-accent/10">{stat.value}</span>
-              ) : (
-                <p className="text-3xl font-bold font-mono tracking-tighter text-sidebar leading-none">{stat.value.toLocaleString()}</p>
-              )}
+            <div className="text-4xl font-black text-primary tracking-tighter">
+              {item.value.toLocaleString()}
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 minimal-card">
-          <h3 className="label-upper mb-8">Production Periodicity (Active Window)</h3>
-          <div className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={barData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="0" vertical={false} />
-                <XAxis 
-                  dataKey="date" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#64748b', fontWeight: 500 }} 
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'monospace' }} 
-                />
-                <Tooltip />
-                <Bar dataKey="total" fill="#0f172a" radius={[2, 2, 0, 0]} barSize={32} />
-              </BarChart>
-            </ResponsiveContainer>
+      {/* Main Action Buttons */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <button 
+          onClick={() => onNavigate('entry')}
+          className="group relative bg-primary text-white p-8 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+            <PlusCircle className="w-24 h-24" />
           </div>
-        </div>
+          <PlusCircle className="w-8 h-8 mb-4 text-white" />
+          <h3 className="text-xl font-bold mb-2">Enter Daily Report</h3>
+          <p className="text-white/70 text-sm mb-6">Log today's production numbers and demographics.</p>
+          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded">
+            Start Entry <ChevronRight className="w-3 h-3" />
+          </div>
+        </button>
 
-        <div className="minimal-card flex flex-col">
-          <h3 className="label-upper mb-8">Operational Delta</h3>
-          <div className="flex-1 space-y-6">
-             {[
-               { label: 'Fresh Requests', value: stats.fresh },
-               { label: 'Renewal Requests', value: stats.renewal },
-               { label: 'Lost / Damaged', value: stats.reissue },
-               { label: 'Gender Parity', value: stats.male ? (stats.male / (stats.female || 1)).toFixed(2) : '0.00' },
-             ].map((item, i) => (
-               <div key={i} className="flex justify-between items-center group">
-                 <span className="text-[13px] text-text-muted group-hover:text-sidebar transition-colors">{item.label}</span>
-                 <span className="text-[14px] font-bold font-mono text-sidebar tracking-tight">{item.value}</span>
-               </div>
-             ))}
+        <button 
+          onClick={() => onNavigate('reports')}
+          className="group relative bg-white text-primary p-8 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform text-accent">
+            <FileText className="w-24 h-24" />
           </div>
-          
-          <div className="mt-auto pt-8 border-t border-border">
-            <div className="h-[140px] flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={45}
-                    outerRadius={65}
-                    paddingAngle={4}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {pieData.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+          <FileText className="w-8 h-8 mb-4 text-accent" />
+          <h3 className="text-xl font-bold mb-2 text-primary">Weekly Report</h3>
+          <p className="text-text-muted text-sm mb-6">Compile and download the summary for this week.</p>
+          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-accent">
+            Generate Now <ChevronRight className="w-3 h-3" />
           </div>
+        </button>
+
+        <button 
+          onClick={() => onNavigate('reports')}
+          className="group relative bg-white text-primary p-8 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform text-primary">
+            <BarChart className="w-24 h-24" />
+          </div>
+          <BarChart className="w-8 h-8 mb-4 text-primary" />
+          <h3 className="text-xl font-bold mb-2 text-primary">Monthly Report</h3>
+          <p className="text-text-muted text-sm mb-6">Review performance across the entire month.</p>
+          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-primary">
+            View Analytics <ChevronRight className="w-3 h-3" />
+          </div>
+        </button>
+      </div>
+
+      {/* Simple Footer/Info */}
+      <div className="text-center pt-10">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/5 rounded-full border border-accent/10">
+          <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-accent">
+            Official DLC Reporting Mainframe Active
+          </span>
         </div>
       </div>
     </div>

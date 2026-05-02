@@ -6,3 +6,12 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Next.js build output
+.next/
+out/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar

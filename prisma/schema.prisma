@@ -11,7 +11,7 @@ model User {
   id           String   @id @default(uuid())
   name         String
   phone        String   @unique
-  pin          String   @unique // C-xxxx format
+  pin          String   @unique // C-xxxxx format
   role         String   @default("officer") // admin or officer
   centreId     String   @default("RS6.31-EKET")
   createdAt    DateTime @default(now())
@@ -47,6 +47,12 @@ model DailyReport {
   age18_25        Int      @default(0)
   age26_60        Int      @default(0)
   age60plus       Int      @default(0)
+
+  // Stock Balance (for Weekly reports)
+  balBF           Int      @default(0)
+  received        Int      @default(0)
+  claimed         Int      @default(0)
+  balCF           Int      @default(0)
 
   userId          String
   user            User     @relation(fields: [userId], references: [id])

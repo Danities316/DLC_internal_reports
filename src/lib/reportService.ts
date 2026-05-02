@@ -63,7 +63,11 @@ export const reportService = {
       remarks: r.remarks || undefined,
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
-      createdBy: r.userId
+      createdBy: r.userId,
+      balBF: r.balBF,
+      received: r.received,
+      claimed: r.claimed,
+      balCF: r.balCF
     }));
 
     const aggregated = {
@@ -75,6 +79,10 @@ export const reportService = {
       female: 0,
       classes: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0, J: 0 },
       ageGroups: { "18-25": 0, "26-60": 0, "60+": 0 },
+      balBF: 0,
+      received: 0,
+      claimed: 0,
+      balCF: 0,
       reportCount: reports.length,
       startDate,
       endDate,
@@ -88,6 +96,10 @@ export const reportService = {
       aggregated.reissue += r.reissue;
       aggregated.male += r.male;
       aggregated.female += r.female;
+      aggregated.balBF += r.balBF;
+      aggregated.received += r.received;
+      aggregated.claimed += r.claimed;
+      aggregated.balCF += r.balCF;
       
       Object.keys(r.classes).forEach(cls => {
         (aggregated.classes as any)[cls] += (r.classes as any)[cls];

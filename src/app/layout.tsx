@@ -5,7 +5,7 @@ import "../index.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FRSC DLC Reporting System",
+  title: "Data Logs Center (DLC) Reporting System",
   description: "Internal Operational Portal for DLC Nigeria",
 };
 

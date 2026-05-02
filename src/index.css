@@ -2,9 +2,11 @@
 
 @theme {
   --color-bg: #f8fafc;
-  --color-sidebar: #0f172a;
+  --color-sidebar: #003366; /* Deep Blue */
   --color-border: #e2e8f0;
-  --color-accent: #2563eb;
+  --color-primary: #003366; /* Blue */
+  --color-secondary: #ffffff; /* White */
+  --color-accent: #800000; /* Maroon */
   --color-text-main: #334155;
   --color-text-muted: #64748b;
   --color-ink: #141414;
@@ -48,7 +50,7 @@
   }
 
   .input-field-mono {
-    @apply input-field font-mono;
+    @apply w-full px-3 py-2 bg-white border border-border rounded-md text-[13px] outline-none focus:border-accent focus:ring-1 focus:ring-accent/20 transition-all font-mono;
   }
 }
 

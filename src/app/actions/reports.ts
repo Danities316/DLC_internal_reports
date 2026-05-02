@@ -5,6 +5,7 @@ import { getSession } from "@/lib/auth";
 import { DailyReport, ReportType } from "@/types";
 import { reportService } from "@/lib/reportService";
 import { generateManualReport } from "@/lib/reportTemplate";
+import { generateDailyWhatsAppReport, generateWeeklyWhatsAppReport } from "@/lib/whatsappTemplates";
 
 export async function saveDailyReport(data: any) {
   const session = await getSession();
@@ -38,6 +39,10 @@ export async function saveDailyReport(data: any) {
         age18_25: data.ageGroups["18-25"],
         age26_60: data.ageGroups["26-60"],
         age60plus: data.ageGroups["60+"],
+        balBF: data.balBF,
+        received: data.received,
+        claimed: data.claimed,
+        balCF: data.balCF,
       },
       create: {
         date: data.date,
@@ -62,6 +67,10 @@ export async function saveDailyReport(data: any) {
         age18_25: data.ageGroups["18-25"],
         age26_60: data.ageGroups["26-60"],
         age60plus: data.ageGroups["60+"],
+        balBF: data.balBF,
+        received: data.received,
+        claimed: data.claimed,
+        balCF: data.balCF,
       }
     });
 
@@ -85,6 +94,26 @@ export async function getDashboardStats() {
   return last10;
 }
 
+export async function getSimplifiedStats() {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const now = new Date();
+  
+  const [today, week, month] = await Promise.all([
+    reportService.getAggregatedData(todayStr, todayStr, session.centreId),
+    reportService.getWeeklyReport(todayStr, session.centreId),
+    reportService.getMonthlyReport(now.getFullYear(), now.getMonth() + 1, session.centreId)
+  ]);
+
+  return {
+    today: today.totalProduction,
+    week: week.totalProduction,
+    month: month.totalProduction
+  };
+}
+
 export async function generateReport(type: ReportType, params: any) {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
@@ -106,6 +135,17 @@ export async function generateReport(type: ReportType, params: any) {
 
   if (!aggregatedData) throw new Error("No data found for period");
 
-  const text = generateManualReport(aggregatedData, type, session.centreId);
-  return { text };
+  let text = "";
+  if (type === 'daily') {
+    text = generateDailyWhatsAppReport(aggregatedData, session);
+  } else if (type === 'weekly') {
+    text = generateWeeklyWhatsAppReport(aggregatedData, session);
+  } else {
+    text = generateManualReport(aggregatedData, type, session.centreId);
+  }
+
+  return { 
+    text,
+    format: (type === 'daily' || type === 'weekly') ? 'whatsapp' : 'document'
+  };
 }

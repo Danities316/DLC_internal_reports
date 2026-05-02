@@ -1,23 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useState, useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { signup, login } from "../actions/auth";
-import { ShieldCheck, LogIn, UserPlus, Phone, User, Key, AlertCircle } from "lucide-react";
+import { ShieldCheck, Phone, User, Key, AlertCircle, LogIn, UserPlus } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label, icon: Icon }: { label: string, icon: any }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
       disabled={pending}
-      className="w-full flex items-center justify-center gap-3 bg-accent hover:opacity-90 text-white px-6 py-3.25 rounded-md text-sm font-bold shadow-sm transition active:scale-95 disabled:opacity-50"
+      className="w-full h-16 flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white rounded-2xl text-lg font-black shadow-xl shadow-primary/20 transition-all active:scale-[0.98] disabled:opacity-50"
     >
       {pending ? (
-        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
       ) : (
-        label
+        <>
+          <Icon className="w-5 h-5" />
+          <span>{label}</span>
+        </>
       )}
     </button>
   );
@@ -25,130 +28,141 @@ function SubmitButton({ label }: { label: string }) {
 
 export default function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [loginState, loginAction] = useFormState(login, null);
-  const [signupState, signupAction] = useFormState(signup, null);
+  const [loginState, loginAction] = useActionState(login, null);
+  const [signupState, signupAction] = useActionState(signup, null);
 
   const error = mode === "login" ? loginState?.error : signupState?.error;
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px]">
-      <div className="w-full max-w-sm animate-in fade-in zoom-in-95 duration-500">
-        <div className="bg-white p-12 rounded-lg border border-border shadow-sm">
-          <div className="text-center mb-10">
-            <div className="w-14 h-14 bg-sidebar rounded-md flex items-center justify-center mx-auto mb-6 shadow-xl shadow-sidebar/20 rotate-[-4deg]">
-              <ShieldCheck className="w-7 h-7 text-white" />
-            </div>
-            <h1 className="text-xl font-black text-sidebar tracking-tighter mb-1 uppercase">Operational Entry</h1>
-            <p className="label-upper !mb-0">
-              {mode === "login" ? "Standard Session" : "Credential Provisioning"}
-            </p>
+    <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-8 duration-700">
+
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-primary/10 border border-border">
+            <ShieldCheck className="w-10 h-10 text-primary" />
           </div>
+          <h1 className="text-3xl font-black text-primary tracking-tight mb-2">Data Logs Center(DLC) Portal</h1>
+          <p className="text-text-muted font-medium">
+            {mode === "login" ? "Welcome back! Please log in to continue." : "Create your staff account to access the system."}
+          </p>
+        </div>
+
+        {/* Main Card */}
+        <div className="bg-white p-8 lg:p-10 rounded-3xl border border-border shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
 
           <AnimatePresence mode="wait">
             {mode === "login" ? (
               <motion.form
                 key="login"
                 action={loginAction}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-6"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="space-y-6 relative z-10"
               >
-                <div className="space-y-2">
-                  <label className="label-upper !mb-0 opacity-60">Identity Vector</label>
+                <div className="space-y-3">
+                  <label className="block text-[11px] font-black uppercase tracking-widest text-text-muted ml-1">Phone Number or PIN</label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
+                    <Phone className="absolute left-5 top-5 w-5 h-5 text-primary/40" />
                     <input
                       name="identifier"
-                      placeholder="Phone or PIN"
-                      className="input-field-mono pl-10 h-11"
+                      placeholder="e.g. C-1234 or 080..."
+                      className="w-full h-14 pl-14 pr-5 bg-bg border border-border rounded-xl font-bold text-lg outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="label-upper !mb-0 opacity-60">Authorized PIN</label>
+                <div className="space-y-3">
+                  <label className="block text-[11px] font-black uppercase tracking-widest text-text-muted ml-1">Password</label>
                   <div className="relative">
-                    <Key className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
+                    <Key className="absolute left-5 top-5 w-5 h-5 text-primary/40" />
                     <input
                       name="pin"
                       type="password"
                       placeholder="••••"
-                      className="input-field-mono pl-10 h-11"
+                      className="w-full h-14 pl-14 pr-5 bg-bg border border-border rounded-xl font-bold text-lg outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                   </div>
                 </div>
-                <SubmitButton label="Initialize Access" />
+
+                <div className="pt-4">
+                  <SubmitButton label="Log In" icon={LogIn} />
+                </div>
               </motion.form>
             ) : (
               <motion.form
                 key="signup"
                 action={signupAction}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-6"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="space-y-6 relative z-10"
               >
-                <div className="space-y-2">
-                  <label className="label-upper !mb-0 opacity-60">Full Name</label>
+                <div className="space-y-3">
+                  <label className="block text-[11px] font-black uppercase tracking-widest text-text-muted ml-1">Full Name</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
+                    <User className="absolute left-5 top-5 w-5 h-5 text-primary/40" />
                     <input
                       name="name"
                       placeholder="Officer Name"
-                      className="input-field pl-10 h-11"
+                      className="w-full h-14 pl-14 pr-5 bg-bg border border-border rounded-xl font-bold text-lg outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="label-upper !mb-0 opacity-60">Operations Phone</label>
+                <div className="space-y-3">
+                  <label className="block text-[11px] font-black uppercase tracking-widest text-text-muted ml-1">Phone Number</label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
+                    <Phone className="absolute left-5 top-5 w-5 h-5 text-primary/40" />
                     <input
                       name="phone"
-                      placeholder="+234..."
-                      className="input-field-mono pl-10 h-11"
+                      placeholder="080..."
+                      className="w-full h-14 pl-14 pr-5 bg-bg border border-border rounded-xl font-bold text-lg outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="label-upper !mb-0 opacity-60">Assigned PIN (C-xxxx)</label>
+                <div className="space-y-3">
+                  <label className="block text-[11px] font-black uppercase tracking-widest text-text-muted ml-1">Assigned PIN</label>
                   <div className="relative">
-                    <Key className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
+                    <Key className="absolute left-5 top-5 w-5 h-5 text-primary/40" />
                     <input
                       name="pin"
                       placeholder="C-0000"
-                      className="input-field-mono pl-10 h-11"
+                      className="w-full h-14 pl-14 pr-5 bg-bg border border-border rounded-xl font-bold text-lg outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                   </div>
                 </div>
-                <SubmitButton label="Register Station" />
+
+                <div className="pt-4">
+                  <SubmitButton label="Create Account" icon={UserPlus} />
+                </div>
               </motion.form>
             )}
           </AnimatePresence>
 
           {error && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-md text-[10px] font-bold uppercase tracking-widest flex items-center gap-3">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-6 overflow-hidden">
+              <div className="p-4 bg-accent/10 border border-accent/20 text-accent rounded-xl flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 shrink-0" />
+                <span className="text-sm font-bold">{error}</span>
+              </div>
             </motion.div>
           )}
+        </div>
 
-          <div className="mt-10 pt-8 border-t border-border flex justify-center">
+        {/* Footer Toggle */}
+        <div className="mt-8 text-center">
+          <p className="text-text-muted text-sm font-medium">
+            {mode === "login" ? "Don't have an account?" : "Already have an account?"}
             <button
               onClick={() => setMode(mode === "login" ? "signup" : "login")}
-              className="text-[10px] font-black text-accent uppercase tracking-[0.2em] hover:opacity-70 transition-opacity"
+              className="ml-2 font-black text-primary hover:underline hover:text-accent transition-colors"
             >
-              {mode === "login" ? "Create New Profile" : "Existing Credentials"}
+              {mode === "login" ? "Register here" : "Log in"}
             </button>
-          </div>
-        </div>
-        <div className="mt-8 flex items-center justify-center gap-3 opacity-20">
-          <div className="h-[1px] w-8 bg-sidebar" />
-          <p className="text-[9px] uppercase font-black tracking-[0.3em] text-sidebar">
-            Federal Road Safety Corps
           </p>
-          <div className="h-[1px] w-8 bg-sidebar" />
         </div>
+
       </div>
     </div>
   );

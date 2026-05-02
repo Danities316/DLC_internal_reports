@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
-const PIN_REGEX = /^C-\d{4}$/;
+const PIN_REGEX = /^C-\d{5}$/;
 
 export async function signup(prevState: any, formData: FormData) {
   const name = formData.get("name") as string;
@@ -18,7 +18,7 @@ export async function signup(prevState: any, formData: FormData) {
   }
 
   if (!PIN_REGEX.test(pin)) {
-    return { error: "PIN must follow format C-xxxx (e.g., C-1234)" };
+    return { error: "PIN must follow format C-xxxxx (e.g., C-12345)" };
   }
 
   try {
@@ -43,12 +43,12 @@ export async function signup(prevState: any, formData: FormData) {
     });
 
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    const session = await encrypt({ 
-      userId: user.id, 
-      name: user.name, 
-      role: user.role, 
+    const session = await encrypt({
+      userId: user.id,
+      name: user.name,
+      role: user.role,
       centreId: user.centreId,
-      expires 
+      expires
     });
 
     (await cookies()).set("session", session, { expires, httpOnly: true });
@@ -83,12 +83,12 @@ export async function login(prevState: any, formData: FormData) {
     }
 
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    const session = await encrypt({ 
-      userId: user.id, 
-      name: user.name, 
-      role: user.role, 
+    const session = await encrypt({
+      userId: user.id,
+      name: user.name,
+      role: user.role,
       centreId: user.centreId,
-      expires 
+      expires
     });
 
     (await cookies()).set("session", session, { expires, httpOnly: true });
