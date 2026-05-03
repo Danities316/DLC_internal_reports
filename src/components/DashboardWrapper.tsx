@@ -26,7 +26,7 @@ export default function DashboardWrapper({ session }: Props) {
   const tabLabels: Record<string, string> = {
     dashboard: 'Dashboard',
     entry: 'Daily Entry',
-    reports: 'AI Reports'
+    reports: 'Reports'
   };
 
   const handleTabChange = (id: string) => {
@@ -39,7 +39,7 @@ export default function DashboardWrapper({ session }: Props) {
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -55,14 +55,14 @@ export default function DashboardWrapper({ session }: Props) {
             <div className="w-2 h-2 bg-accent shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
             DLC System
           </div>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(false)}
             className="lg:hidden text-white/40 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <nav className="flex-grow space-y-10">
           <div>
             <h3 className="text-[9px] uppercase font-black text-white/30 tracking-[0.2em] mb-4">Operations</h3>
@@ -71,11 +71,10 @@ export default function DashboardWrapper({ session }: Props) {
                 <button
                   key={item.id}
                   onClick={() => handleTabChange(item.id)}
-                  className={`flex items-center gap-3 w-full px-3 py-3 text-[12px] font-bold tracking-tight rounded-md transition-all cursor-pointer ${
-                    activeTab === item.id 
-                      ? 'bg-white/10 text-white' 
-                      : 'text-white/40 hover:text-white hover:bg-white/5'
-                  }`}
+                  className={`flex items-center gap-3 w-full px-3 py-3 text-[12px] font-bold tracking-tight rounded-md transition-all cursor-pointer ${activeTab === item.id
+                    ? 'bg-white/10 text-white'
+                    : 'text-white/40 hover:text-white hover:bg-white/5'
+                    }`}
                 >
                   <item.icon className={`w-4 h-4 transition-colors ${activeTab === item.id ? 'text-accent' : 'text-inherit'}`} />
                   {item.label}
@@ -104,7 +103,7 @@ export default function DashboardWrapper({ session }: Props) {
 
       <header className="fixed top-0 left-0 lg:left-[240px] right-0 h-16 lg:h-20 bg-white/80 backdrop-blur-md border-b border-border flex items-center justify-between px-4 lg:px-10 z-40">
         <div className="flex items-center gap-2 lg:gap-4">
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(true)}
             className="lg:hidden p-2 text-sidebar hover:bg-bg rounded-md"
           >
@@ -116,7 +115,7 @@ export default function DashboardWrapper({ session }: Props) {
             <span className="text-sidebar uppercase text-[11px] lg:text-[12px]">{tabLabels[activeTab]}</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3 lg:gap-6">
           <div className="h-8 lg:h-10 w-[1px] bg-border hidden sm:block" />
           <div className="flex items-center gap-3 lg:gap-4">

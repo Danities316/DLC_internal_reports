@@ -33,25 +33,29 @@ export function DailyEntryForm({ session }: Props) {
     female: 0,
     classes: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0, J: 0 },
     ageGroups: { "18-25": 0, "26-60": 0, "60+": 0 },
+    validity3Yr: 0,
+    validity5Yr: 0,
     remarks: "",
     balBF: 0,
     received: 0,
+    damaged: 0,
     claimed: 0,
     balCF: 0
   });
 
   const totals = {
+    production: formData.fresh + formData.renewal + formData.reissue,
     gender: formData.male + formData.female,
-    types: formData.fresh + formData.renewal + formData.reissue,
     classes: Object.values(formData.classes).reduce((a, b) => a + b, 0),
-    ages: Object.values(formData.ageGroups).reduce((a, b) => a + b, 0)
+    ages: Object.values(formData.ageGroups).reduce((a, b) => a + b, 0),
+    validity: formData.validity3Yr + formData.validity5Yr
   };
 
   const validate = () => {
     if (totals.gender !== formData.totalProduction) {
       return "The sum of Male and Female must match the Total Production.";
     }
-    if (totals.types !== formData.totalProduction) {
+    if (totals.production !== formData.totalProduction) {
       return "The sum of Fresh, Renewal, and Reissue must match the Total Production.";
     }
     if (totals.classes !== formData.totalProduction) {
@@ -59,6 +63,9 @@ export function DailyEntryForm({ session }: Props) {
     }
     if (totals.ages !== formData.totalProduction) {
       return "The sum of Age Groups must match the Total Production.";
+    }
+    if (totals.validity !== formData.totalProduction) {
+      return "The sum of 3-Year and 5-Year licenses must match the Total Production.";
     }
     return null;
   };
@@ -225,7 +232,33 @@ export function DailyEntryForm({ session }: Props) {
           </div>
         </div>
 
-        {/* Section 5: Age Groups */}
+        {/* Section 5: License Validity Period */}
+        <div className="bg-white p-8 rounded-2xl border border-border shadow-sm">
+          <SectionHeader icon={Calendar} title="License Validity Period" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {['validity3Yr', 'validity5Yr'].map(type => (
+              <div key={type} className="space-y-3">
+                <label className="text-[11px] font-black uppercase tracking-widest text-text-muted">
+                  {type === 'validity3Yr' ? '3-Year License' : '5-Year License'}
+                </label>
+                <input 
+                  type="number" 
+                  value={(formData as any)[type] || ''}
+                  onChange={e => setFormData({...formData, [type]: parseInt(e.target.value) || 0})}
+                  className="w-full h-14 px-5 bg-bg border border-border rounded-xl text-xl font-bold focus:border-primary outline-none"
+                />
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 pt-6 border-t border-border flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+            <span className="text-text-muted">Validity Total</span>
+            <span className={totals.validity === formData.totalProduction ? 'text-green-600' : 'text-accent'}>
+              {totals.validity} / {formData.totalProduction}
+            </span>
+          </div>
+        </div>
+
+        {/* Section 6: Age Groups */}
         <div className="bg-white p-8 rounded-2xl border border-border shadow-sm">
           <SectionHeader icon={ClipboardList} title="Age Group Analysis" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -246,13 +279,14 @@ export function DailyEntryForm({ session }: Props) {
           </div>
         </div>
 
-        {/* Section 6: Stock Balance */}
+        {/* Section 7: Stock Balance */}
         <div className="bg-white p-8 rounded-2xl border border-border shadow-sm">
           <SectionHeader icon={ClipboardList} title="License Card Inventory (Stock)" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
             {[
               { id: 'balBF', label: 'Bal B/F' },
               { id: 'received', label: 'Received (Print Farm)' },
+              { id: 'damaged', label: 'Damaged Cards' },
               { id: 'claimed', label: 'Claimed / Issued' },
               { id: 'balCF', label: 'Bal C/F (Carried)' },
             ].map(item => (
@@ -262,18 +296,18 @@ export function DailyEntryForm({ session }: Props) {
                   type="number" 
                   value={(formData as any)[item.id] || ''}
                   onChange={e => setFormData({...formData, [item.id]: parseInt(e.target.value) || 0})}
-                  className={`w-full h-12 px-4 bg-bg border border-border rounded-xl font-bold outline-none focus:border-primary ${item.id === 'balCF' ? 'bg-primary/5 border-primary/20' : ''}`}
+                  className={`w-full h-12 px-4 bg-bg border border-border rounded-xl font-bold outline-none focus:border-primary ${item.id === 'balCF' ? 'bg-primary/5 border-primary/20' : item.id === 'damaged' ? 'text-accent' : ''}`}
                 />
               </div>
             ))}
           </div>
           <div className="mt-4 flex items-center gap-2 text-[10px] font-bold text-text-muted italic">
             <Info className="w-3 h-3" />
-            <span>Calculation: (B/F + Received) - Claimed = C/F</span>
+            <span>Calculation: (B/F + Received) - (Claimed + Damaged) = C/F</span>
           </div>
         </div>
 
-        {/* Section 7: Remarks */}
+        {/* Section 8: Remarks */}
         <div className="bg-white p-8 rounded-2xl border border-border shadow-sm">
           <SectionHeader icon={Info} title="Remarks & Observations" />
           <textarea 

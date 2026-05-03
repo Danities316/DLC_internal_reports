@@ -64,8 +64,11 @@ export const reportService = {
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
       createdBy: r.userId,
+      validity3Yr: r.validity3Yr,
+      validity5Yr: r.validity5Yr,
       balBF: r.balBF,
       received: r.received,
+      damaged: r.damaged,
       claimed: r.claimed,
       balCF: r.balCF
     }));
@@ -79,8 +82,11 @@ export const reportService = {
       female: 0,
       classes: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0, J: 0 },
       ageGroups: { "18-25": 0, "26-60": 0, "60+": 0 },
+      validity3Yr: 0,
+      validity5Yr: 0,
       balBF: 0,
       received: 0,
+      damaged: 0,
       claimed: 0,
       balCF: 0,
       reportCount: reports.length,
@@ -96,8 +102,11 @@ export const reportService = {
       aggregated.reissue += r.reissue;
       aggregated.male += r.male;
       aggregated.female += r.female;
+      aggregated.validity3Yr += r.validity3Yr;
+      aggregated.validity5Yr += r.validity5Yr;
       aggregated.balBF += r.balBF;
       aggregated.received += r.received;
+      aggregated.damaged += r.damaged;
       aggregated.claimed += r.claimed;
       aggregated.balCF += r.balCF;
       

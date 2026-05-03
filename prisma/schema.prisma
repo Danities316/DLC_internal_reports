@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -49,9 +49,14 @@ model DailyReport {
   age26_60        Int      @default(0)
   age60plus       Int      @default(0)
 
+  // Validity Period
+  validity3Yr     Int      @default(0)
+  validity5Yr     Int      @default(0)
+
   // Stock Balance (for Weekly reports)
   balBF           Int      @default(0)
   received        Int      @default(0)
+  damaged         Int      @default(0)
   claimed         Int      @default(0)
   balCF           Int      @default(0)
 

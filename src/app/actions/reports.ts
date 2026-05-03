@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { DailyReport, ReportType } from "@/types";
 import { reportService } from "@/lib/reportService";
-import { generateManualReport } from "@/lib/reportTemplate";
+import { generateManualReport, generateQuarterlyReport } from "@/lib/reportTemplate";
 import { generateDailyWhatsAppReport, generateWeeklyWhatsAppReport } from "@/lib/whatsappTemplates";
 
 export async function saveDailyReport(data: any) {
@@ -39,8 +39,11 @@ export async function saveDailyReport(data: any) {
         age18_25: data.ageGroups["18-25"],
         age26_60: data.ageGroups["26-60"],
         age60plus: data.ageGroups["60+"],
+        validity3Yr: data.validity3Yr,
+        validity5Yr: data.validity5Yr,
         balBF: data.balBF,
         received: data.received,
+        damaged: data.damaged,
         claimed: data.claimed,
         balCF: data.balCF,
       },
@@ -67,8 +70,11 @@ export async function saveDailyReport(data: any) {
         age18_25: data.ageGroups["18-25"],
         age26_60: data.ageGroups["26-60"],
         age60plus: data.ageGroups["60+"],
+        validity3Yr: data.validity3Yr,
+        validity5Yr: data.validity5Yr,
         balBF: data.balBF,
         received: data.received,
+        damaged: data.damaged,
         claimed: data.claimed,
         balCF: data.balCF,
       }
@@ -140,6 +146,8 @@ export async function generateReport(type: ReportType, params: any) {
     text = generateDailyWhatsAppReport(aggregatedData, session);
   } else if (type === 'weekly') {
     text = generateWeeklyWhatsAppReport(aggregatedData, session);
+  } else if (type === 'quarterly') {
+    text = generateQuarterlyReport(aggregatedData, session.centreId, quarter, year, session.name);
   } else {
     text = generateManualReport(aggregatedData, type, session.centreId);
   }

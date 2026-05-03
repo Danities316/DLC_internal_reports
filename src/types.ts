@@ -25,8 +25,11 @@ export interface DailyReport {
     "60+": number;
   };
   remarks?: string;
+  validity3Yr?: number;
+  validity5Yr?: number;
   balBF?: number;
   received?: number;
+  damaged?: number;
   claimed?: number;
   balCF?: number;
   createdAt: string; // ISO String

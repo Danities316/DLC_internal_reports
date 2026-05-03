@@ -285,7 +285,7 @@ export function ReportGenerator({ session }: { session: AuthSession }) {
              )}
 
              {generatedReport && reportFormat === 'document' && (
-               <div className="bg-white p-10 lg:p-16 shadow-xl border border-border/50 rounded-sm mx-auto max-w-[800px]
+               <div id="pdf-report-content" style={{ fontFamily: '"Comic Sans MS", "Comic Sans", cursive' }} className="bg-white p-10 lg:p-16 shadow-xl border border-border/50 rounded-sm mx-auto max-w-[800px]
                  prose prose-sm max-w-none
                  prose-h1:text-[22px] prose-h1:font-black prose-h1:tracking-tight prose-h1:text-primary prose-h1:border-b-4 prose-h1:border-primary/10 prose-h1:pb-4
                  prose-h2:text-[16px] prose-h2:font-black prose-h2:text-text-main prose-h2:mt-10
