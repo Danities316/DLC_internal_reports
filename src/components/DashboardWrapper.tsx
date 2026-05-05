@@ -30,6 +30,7 @@ export default function DashboardWrapper({ session }: Props) {
   };
 
   const handleTabChange = (id: string) => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     setActiveTab(id);
     setIsSidebarOpen(false);
   };

@@ -7,9 +7,77 @@ import { reportService } from "@/lib/reportService";
 import { generateManualReport, generateQuarterlyReport } from "@/lib/reportTemplate";
 import { generateDailyWhatsAppReport, generateWeeklyWhatsAppReport } from "@/lib/whatsappTemplates";
 
+/**
+ * Fetch the previous day's Bal C/F for auto-populating today's Bal B/F.
+ * Finds the most recent report BEFORE the given date for this centre.
+ */
+export async function getPreviousBalance(date: string) {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+
+  const previousReport = await prisma.dailyReport.findFirst({
+    where: {
+      centreId: session.centreId,
+      date: { lt: date },
+    },
+    orderBy: { date: "desc" },
+    select: { balCF: true, claimed: true, date: true },
+  });
+
+  return {
+    balBF: previousReport?.balCF ?? 0,
+    previousDate: previousReport?.date ?? null,
+  };
+}
+
+/**
+ * Check if a report already exists for this date + centre.
+ */
+export async function checkDateExists(date: string) {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+
+  const existing = await prisma.dailyReport.findUnique({
+    where: {
+      date_centreId: {
+        date,
+        centreId: session.centreId,
+      },
+    },
+    select: { id: true, totalProduction: true, createdAt: true },
+  });
+
+  return {
+    exists: !!existing,
+    report: existing,
+  };
+}
+
 export async function saveDailyReport(data: any) {
   const session = await getSession();
   if (!session) throw new Error("Unauthorized");
+
+  // Server-side date validation: non-admins can only submit for today
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  
+  if (data.date !== todayStr && session.role !== 'admin') {
+    return { error: "You can only submit a report for today's date. Contact your admin for corrections." };
+  }
+
+  // Check for existing report (non-admins cannot overwrite)
+  const existing = await prisma.dailyReport.findUnique({
+    where: {
+      date_centreId: {
+        date: data.date,
+        centreId: session.centreId,
+      },
+    },
+  });
+
+  if (existing && session.role !== 'admin') {
+    return { error: `A report for ${data.date} already exists. Contact your admin to modify it.` };
+  }
 
   try {
     const report = await prisma.dailyReport.upsert({

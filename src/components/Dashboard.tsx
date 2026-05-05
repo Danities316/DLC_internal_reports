@@ -8,7 +8,8 @@ import {
   BarChart, 
   ChevronRight,
   ClipboardCheck,
-  TrendingUp
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 
 interface Props {
@@ -56,90 +57,109 @@ export function Dashboard({ session, onNavigate }: Props) {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[
-          { label: "Today's Total", value: stats.today, icon: ClipboardCheck, color: 'text-primary' },
-          { label: "This Week Total", value: stats.week, icon: TrendingUp, color: 'text-accent' },
-          { label: "This Month Total", value: stats.month, icon: BarChart, color: 'text-primary' },
-        ].map((item, i) => (
-          <div key={i} className="bg-white p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 transition-all group">
-            <div className="flex items-center gap-4 mb-4">
-              <div className={`p-2 rounded-lg bg-bg ${item.color}`}>
-                <item.icon className="w-5 h-5" />
-              </div>
-              <span className="text-[11px] font-black uppercase tracking-[0.15em] text-text-muted">
-                {item.label}
-              </span>
-            </div>
-            <div className="text-4xl font-black text-primary tracking-tighter">
-              {item.value.toLocaleString()}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* ===== QUICK ACTIONS FIRST (mobile users see these immediately) ===== */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="w-4 h-4 text-accent" />
+          <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted">Quick Actions</h2>
+        </div>
 
-      {/* Main Action Buttons */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Primary CTA: Enter Daily Report — large, prominent */}
         <button 
           onClick={() => onNavigate('entry')}
-          className="group relative bg-primary text-white p-8 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
+          className="group relative w-full bg-primary text-white p-6 sm:p-8 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all text-left overflow-hidden mb-4"
         >
           <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
             <PlusCircle className="w-24 h-24" />
           </div>
-          <PlusCircle className="w-8 h-8 mb-4 text-white" />
-          <h3 className="text-xl font-bold mb-2">Enter Daily Report</h3>
-          <p className="text-white/70 text-sm mb-6">Log today's production numbers and demographics.</p>
-          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest bg-white/10 px-3 py-1.5 rounded">
-            Start Entry <ChevronRight className="w-3 h-3" />
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center shrink-0">
+              <PlusCircle className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg sm:text-xl font-black mb-1">Enter Daily Report</h3>
+              <p className="text-white/70 text-sm hidden sm:block">Log today's production numbers and demographics.</p>
+            </div>
+            <ChevronRight className="w-5 h-5 opacity-50 group-hover:translate-x-1 transition-transform shrink-0" />
           </div>
         </button>
 
-        <button 
-          onClick={() => onNavigate('reports')}
-          className="group relative bg-white text-primary p-8 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform text-primary">
-            <FileText className="w-24 h-24" />
-          </div>
-          <FileText className="w-8 h-8 mb-4 text-primary" />
-          <h3 className="text-xl font-bold mb-2 text-primary">Daily Report</h3>
-          <p className="text-text-muted text-sm mb-6">Generate WhatsApp summary for today.</p>
-          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-primary">
-            Generate Now <ChevronRight className="w-3 h-3" />
-          </div>
-        </button>
+        {/* Secondary Actions Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button 
+            onClick={() => onNavigate('reports')}
+            className="group relative bg-white text-primary p-5 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.01] active:scale-[0.99] transition-all text-left overflow-hidden"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center shrink-0">
+                <FileText className="w-5 h-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-primary">Daily Report</h3>
+                <p className="text-text-muted text-[11px]">WhatsApp summary</p>
+              </div>
+              <ChevronRight className="w-4 h-4 opacity-30 group-hover:translate-x-1 transition-transform shrink-0 ml-auto" />
+            </div>
+          </button>
 
-        <button 
-          onClick={() => onNavigate('reports')}
-          className="group relative bg-white text-primary p-8 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform text-accent">
-            <FileText className="w-24 h-24" />
-          </div>
-          <FileText className="w-8 h-8 mb-4 text-accent" />
-          <h3 className="text-xl font-bold mb-2 text-primary">Weekly Report</h3>
-          <p className="text-text-muted text-sm mb-6">Compile and download the summary for this week.</p>
-          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-accent">
-            Generate Now <ChevronRight className="w-3 h-3" />
-          </div>
-        </button>
+          <button 
+            onClick={() => onNavigate('reports')}
+            className="group relative bg-white text-primary p-5 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.01] active:scale-[0.99] transition-all text-left overflow-hidden"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-accent/5 rounded-lg flex items-center justify-center shrink-0">
+                <FileText className="w-5 h-5 text-accent" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-primary">Weekly Report</h3>
+                <p className="text-text-muted text-[11px]">Week summary</p>
+              </div>
+              <ChevronRight className="w-4 h-4 opacity-30 group-hover:translate-x-1 transition-transform shrink-0 ml-auto" />
+            </div>
+          </button>
 
-        <button 
-          onClick={() => onNavigate('reports')}
-          className="group relative bg-white text-primary p-8 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all text-left overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform text-primary">
-            <BarChart className="w-24 h-24" />
-          </div>
-          <BarChart className="w-8 h-8 mb-4 text-primary" />
-          <h3 className="text-xl font-bold mb-2 text-primary">Monthly Report</h3>
-          <p className="text-text-muted text-sm mb-6">Review performance across the entire month.</p>
-          <div className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-primary">
-            View Analytics <ChevronRight className="w-3 h-3" />
-          </div>
-        </button>
+          <button 
+            onClick={() => onNavigate('reports')}
+            className="group relative bg-white text-primary p-5 rounded-xl border-2 border-primary/10 shadow-sm hover:border-primary/40 hover:scale-[1.01] active:scale-[0.99] transition-all text-left overflow-hidden"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center shrink-0">
+                <BarChart className="w-5 h-5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-primary">Monthly Report</h3>
+                <p className="text-text-muted text-[11px]">Full month data</p>
+              </div>
+              <ChevronRight className="w-4 h-4 opacity-30 group-hover:translate-x-1 transition-transform shrink-0 ml-auto" />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* ===== STATS BELOW ACTIONS ===== */}
+      <div>
+        <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted mb-4">Production Overview</h2>
+        <div className="grid grid-cols-3 gap-3 sm:gap-6">
+          {[
+            { label: "Today", value: stats.today, icon: ClipboardCheck, color: 'text-primary' },
+            { label: "This Week", value: stats.week, icon: TrendingUp, color: 'text-accent' },
+            { label: "This Month", value: stats.month, icon: BarChart, color: 'text-primary' },
+          ].map((item, i) => (
+            <div key={i} className="bg-white p-4 sm:p-6 rounded-xl border border-border shadow-sm hover:border-primary/20 transition-all group">
+              <div className="flex items-center gap-2 sm:gap-4 mb-2 sm:mb-4">
+                <div className={`p-1.5 sm:p-2 rounded-lg bg-bg ${item.color}`}>
+                  <item.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-[0.1em] sm:tracking-[0.15em] text-text-muted">
+                  {item.label}
+                </span>
+              </div>
+              <div className="text-2xl sm:text-4xl font-black text-primary tracking-tighter">
+                {item.value.toLocaleString()}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Simple Footer/Info */}
