@@ -14,6 +14,30 @@ const todayStr = () => {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 };
 
+const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
+  <div className="flex items-center gap-3 mb-6 pb-2 border-b border-border/50">
+    <div className="p-1.5 rounded-md bg-primary/5 text-primary">
+      <Icon className="w-4 h-4" />
+    </div>
+    <h3 className="text-sm font-black uppercase tracking-widest text-primary">{title}</h3>
+  </div>
+);
+
+// Locked section wrapper
+const LockableSection = ({ children, isLocked }: { children: React.ReactNode, isLocked: boolean }) => (
+  <div className="relative">
+    {isLocked && (
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] z-10 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-not-allowed">
+        <Lock className="w-5 h-5 text-text-muted/40" />
+        <p className="text-[10px] font-bold text-text-muted/60 uppercase tracking-widest text-center px-4">
+          Enter Total Licenses above first
+        </p>
+      </div>
+    )}
+    <div className={isLocked ? 'opacity-40 pointer-events-none' : ''}>{children}</div>
+  </div>
+);
+
 export function DailyEntryForm({ session }: Props) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -113,30 +137,6 @@ export function DailyEntryForm({ session }: Props) {
     await doSubmit();
   };
 
-  const SectionHeader = ({ icon: Icon, title }: { icon: any, title: string }) => (
-    <div className="flex items-center gap-3 mb-6 pb-2 border-b border-border/50">
-      <div className="p-1.5 rounded-md bg-primary/5 text-primary">
-        <Icon className="w-4 h-4" />
-      </div>
-      <h3 className="text-sm font-black uppercase tracking-widest text-primary">{title}</h3>
-    </div>
-  );
-
-  // Locked section wrapper
-  const LockableSection = ({ children }: { children: React.ReactNode }) => (
-    <div className="relative">
-      {isLocked && (
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] z-10 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-not-allowed">
-          <Lock className="w-5 h-5 text-text-muted/40" />
-          <p className="text-[10px] font-bold text-text-muted/60 uppercase tracking-widest text-center px-4">
-            Enter Total Licenses above first
-          </p>
-        </div>
-      )}
-      <div className={isLocked ? 'opacity-40 pointer-events-none' : ''}>{children}</div>
-    </div>
-  );
-
   const matchClass = (sum: number) => sum === formData.totalProduction ? 'text-green-600' : 'text-accent';
   const matchBorder = (sum: number) => sum === formData.totalProduction ? 'border-green-200' : 'border-accent/20';
 
@@ -181,7 +181,7 @@ export function DailyEntryForm({ session }: Props) {
         </div>
 
         {/* All remaining sections wrapped in LockableSection */}
-        <LockableSection>
+        <LockableSection isLocked={isLocked}>
         <div className="space-y-8">
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
